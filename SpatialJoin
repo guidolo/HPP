@@ -1,0 +1,50 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 26 10:50:03 2018
+
+@author: guidosidoni
+"""
+
+import geopandas
+from shapely.geometry import Point
+from geopandas import datasets, GeoDataFrame, read_file
+from geopandas.tools import overlay, sjoin
+
+
+#reading shape file with geopandas
+socvul = read_file('/Users/guidosidoni/Documents/NEU/Misselanea/HousePricePrediction/VulnerabilidadSocial2010/GradodeVulnerabilidadSocial22.shp')
+
+#reading house locations
+training = pd.read_csv('/Users/guidosidoni/Documents/NEU/Misselanea/HousePricePrediction/train.csv')
+testing = pd.read_csv('/Users/guidosidoni/Documents/NEU/Misselanea/HousePricePrediction/test.csv')
+
+socvul.plot()
+
+training.columns
+training[['lat','lng']]
+
+training = training[training['lat'].isnull()==False]
+
+#coordinates as a tuple of Longitude and Latitude
+training['Coordinates'] = list(zip(training.lng, training.lat))
+
+#THen we transform tuples to Point
+training ['Coordinates'] = training['coordinates'].apply(Point)
+
+housePoints = geopandas.GeoDataFrame(training, geometry='Coordinates')
+
+housePoints.plot()
+
+print(housePoints.head())
+
+ax = socvul.plot()
+housePoints.plot(ax=ax)
+plt.show()
+
+#left join
+leftJoin = sjoin(housePoints, socvul, how='left')
+
+leftJoin.head()
+
+
